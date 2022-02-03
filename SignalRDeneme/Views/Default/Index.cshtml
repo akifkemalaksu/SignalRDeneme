@@ -1,0 +1,88 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Personeller</title>
+    <script src="~/scripts/jquery-1.6.4.min.js"></script>
+    <script src="~/scripts/jquery.signalR-2.4.2.min.js"></script>
+    <script src="~/SignalR/Hubs/" type="text/javascript"></script>
+
+
+    <script type="text/javascript">
+        $(function () {
+            console.log($.connection);
+            console.log($.connection.hub);
+            var hub = $.connection.MyHub;
+            console.log(hub);
+            hub.client.tetikle = function () {
+                getData();
+            };
+
+            $.connection.hub.start().done(function () {
+                getData();
+            });
+        });
+
+        function getData() {
+            var tbl = $('#table');
+            $.ajax({
+                url: '/default/verigetir',
+                type: 'GET',
+                datatype: 'json',
+                success: function (data) {
+                    tbl.find("tbody").empty();
+                    data = JSON.parse(data);
+                    $.each(data, function (i, e) {
+                        tbl.find("tbody").append('<tr>' +
+                            '<td> ' + e.kod + ' </td>' +
+                            '<td> ' + (e.DepoAdi ?? "") + ' </td>' +
+                            '<td> ' + e.miktar + ' </td>' +
+                            '</tr>');
+                    });
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <table id="table">
+            <thead>
+                <tr>
+                    <th>Stok Kodu</th>
+                    <th>Depo</th>
+                    <th>Miktar</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+<script>
+    $('#table > tbody').bind("click", function (e) {
+        console.log("success");
+        $.ajax({
+            url: '/default/veriekle',
+            type: 'GET',
+            success: function (data) {
+                console.log("success");
+            }
+        });
+    });
+    $('#table > thead').bind("click", function (e) {
+        $.ajax({
+            url: '/default/verisil',
+            type: 'GET',
+            success: function (data) {
+                console.log("success");
+            }
+        });
+        if ($('#table > tbody > tr').length == 0) {
+            $('#table > tbody').click();
+        }
+    });
+</script>
